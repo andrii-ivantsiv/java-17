@@ -1,0 +1,42 @@
+plugins {
+    id('java')
+    id('java-library')
+    id('me.champeau.jmh') version '0.7.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+group 'org.java.benchmark'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    jupiterVersion = '5.9.2'
+    jmhVersion = '1.36'
+}
+
+dependencies {
+    jmh("org.openjdk.jmh:jmh-core:$jmhVersion")
+    jmh("org.openjdk.jmh:jmh-generator-annprocess:$jmhVersion")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    runtimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+}
+
+jmh {
+    warmupIterations = 2
+    iterations = 5
+    fork = 1
+    includeTests = true
+}
+
+test {
+    useJUnitPlatform()
+}
