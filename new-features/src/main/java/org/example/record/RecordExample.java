@@ -3,26 +3,27 @@
  */
 package org.example.record;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
-import lombok.NonNull;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNullElseGet;
 
 @Builder
-public record RecordExample(@NonNull UUID id, String name, Optional<String> description) {
+public record RecordExample(UUID id, String name, Optional<String> description) {
 
     public RecordExample {
-        Objects.requireNonNull(id);
+        if (isNull(id)) {
+            throw new IllegalArgumentException("Id is null");
+        }
     }
 
     public Optional<String> description() {
-        return Objects.requireNonNullElseGet(description, Optional::empty);
+        return requireNonNullElseGet(description, Optional::empty);
     }
 
     @Override

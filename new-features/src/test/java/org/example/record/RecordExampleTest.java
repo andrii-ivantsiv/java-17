@@ -15,7 +15,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
 /**
@@ -58,6 +60,12 @@ class RecordExampleTest {
         final RecordExample recordObject = objectMapper.readValue(recordJson, RecordExample.class);
 
         assertRecordExample(id, name, description.orElse(null), recordObject);
+    }
+
+    @Test
+    void recordCreationValidationTest() {
+        assertThrows(IllegalArgumentException.class, () -> new RecordExample(null, "", empty()));
+        assertThrows(IllegalArgumentException.class, () -> RecordExample.builder().name("").description(empty()).build());
     }
 
     private static void assertRecordExampleJson(UUID expectedId,
