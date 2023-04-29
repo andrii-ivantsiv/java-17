@@ -18,6 +18,9 @@ import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
+/**
+ * @see org.example.record.RecordExample
+ */
 class RecordExampleTest {
     @Test
     void recordConstructorTest() {
