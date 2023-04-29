@@ -5,6 +5,7 @@ package org.example.record;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -14,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.lang.String.format;
-import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
@@ -48,24 +48,37 @@ class RecordExampleTest {
         final UUID id = UUID.randomUUID();
         final String name = "TestName3";
         final Optional<String> description = Optional.ofNullable(descriptionText);
-
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new Jdk8Module()); // for serializing and deserializing Optional and other java 8 and higher features
-        final RecordExample record = RecordExample.builder().id(id).name(name).description(description).build();
-        final String recordJson = objectMapper.writeValueAsString(record);
 
-        final String expectedJson = format("""
-                {
-                    "id": "%s",
-                    "name": "%s",
-                    "description": %s
-                }
-                """, id, name, description.map(d -> "\"" + d + "\"").orElse(null));
-        JSONAssert.assertEquals(expectedJson, recordJson, NON_EXTENSIBLE);
+        final String recordJson = objectMapper.writeValueAsString(new RecordExample(id, name, description));
+
+        assertRecordExampleJson(id, name, description.orElse(null), recordJson);
 
         final RecordExample recordObject = objectMapper.readValue(recordJson, RecordExample.class);
 
         assertRecordExample(id, name, description.orElse(null), recordObject);
+    }
+
+    private static void assertRecordExampleJson(UUID expectedId,
+                                                String expectedName,
+                                                String expectedDescription,
+                                                String recordJson) throws JSONException {
+        final String expectedJson = format("""
+                        {
+                            "id": %s,
+                            "name": %s,
+                            "description": %s
+                        }
+                        """,
+                wrapWithQuotes(expectedId),
+                wrapWithQuotes(expectedName),
+                wrapWithQuotes(expectedDescription));
+        JSONAssert.assertEquals(expectedJson, recordJson, NON_EXTENSIBLE);
+    }
+
+    private static String wrapWithQuotes(Object str) {
+        return str != null ? "\"" + str + "\"" : null;
     }
 
     private static void assertRecordExample(UUID expectedId,
@@ -77,6 +90,6 @@ class RecordExampleTest {
         assertEquals(expectedDescription, actual.description().orElse(null));
         assertEquals(format("RecordExample[id=%s]", expectedId), actual.toString());
         assertEquals(expectedId.hashCode(), actual.hashCode());
-        assertEquals(new RecordExample(expectedId, "", empty()), actual);
+        assertEquals(new RecordExample(expectedId, null, null), actual);
     }
 }
