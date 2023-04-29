@@ -3,28 +3,40 @@
  */
 package org.example.record;
 
-import javax.annotation.Nonnull;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Builder;
+import lombok.NonNull;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 import static java.lang.String.format;
 
-public record RecordExample(@Nonnull UUID id, String name, Optional<String> description) {
+@Builder
+public record RecordExample(@NonNull UUID id, String name, Optional<String> description) {
+
+    public RecordExample {
+        Objects.requireNonNull(id);
+    }
+
+    public Optional<String> description() {
+        return Objects.requireNonNullElseGet(description, Optional::empty);
+    }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return id().hashCode();
     }
 
     @Override
     public String toString() {
-        return format("RecordExample[id=%s]", id);
+        return format("%s[id=%s]", getClass().getSimpleName(), id());
     }
 
     @Override
     public boolean equals(Object obj) {
-        return this.getClass().isInstance(obj)
-                && Objects.equals(this.id(), this.getClass().cast(obj).id());
+        return getClass().isInstance(obj) && Objects.equals(id(), getClass().cast(obj).id());
     }
 }
